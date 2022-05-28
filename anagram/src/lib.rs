@@ -1,37 +1,22 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
-/*
-* 1. Go through the map of possible anagram
-* 2. Check length of the possible anagram
-* TODO: 3. Lowercase the word and the anagram
-* 4.
-*/
 pub fn anagrams_for<'a>(word: &str, possible_anagrams: &'a [&str]) -> HashSet<&'a str> {
-    let mut word_letters = HashMap::new();
-    for c in word.chars() {
-        word_letters.insert(c.to_string().to_lowercase(), 0);
-    }
+    let word_len = word.len();
 
-    let mut result: HashSet<&'a str> = HashSet::new();
-    for anagram in possible_anagrams.iter() {
-        let mut counter = 0;
-        for c in word.chars() {
-            if word.len() != anagram.len() {
-                continue;
-            }
-            match word_letters.get(&c.to_string()) {
-                Some(_) => counter += 1,
-                None => counter -= 1,
-            }
-            if counter < 0 {
-                continue;
-            }
-        }
+    let lower_word = word.to_lowercase();
+    let mut sorted_word: Vec<char> = lower_word.chars().collect();
+    sorted_word.sort_unstable();
 
-        if counter > 0 {
-            result.insert(anagram);
-        }
-    }
-
-    return result;
+    HashSet::from_iter(
+        possible_anagrams
+            .iter()
+            .cloned()
+            .filter(|x| x.len() == word_len)
+            .filter(|x| {
+                let lower_x = x.to_lowercase();
+                let mut tmp: Vec<char> = lower_x.chars().collect();
+                tmp.sort_unstable();
+                tmp == sorted_word && lower_x != lower_word
+            }),
+    )
 }
